@@ -41,7 +41,7 @@ curl -ku 'username:password' https://splunk:8089/servicesNS/nobody/phantom/confi
 
 ### Setting up Phantom:
 1. Launch Splunk Phantom AMI on AWS (or on-prem)
-2. Login with admin/password
+2. Login with admin/password  (You should change your password)
 3. Go to Administration --> User Management
 4. Click on "automation" User
 5. Change "Allowed IPs" to "any" (or appropriate subnet, if you prefer to be more secure)
@@ -126,6 +126,7 @@ index = security
   sourcetype = powershell_transcript
  ```
   8. Turn on WinRM service:
+    - Using these instructions: https://www.visualstudiogeeks.com/devops/how-to-configure-winrm-for-https-manually
     - In powershell:
     ```
     winrm quickconfig
@@ -135,7 +136,6 @@ index = security
     port=5986
     netsh advfirewall firewall add rule name="Windows Remote Management (HTTPS-In)" dir=in action=allow protocol=TCP localport=$port
     ```
-    - Allow port 5986 inbound through Windows Firewall
     - Open port 5986 inbound on AWS for Server (sometimes this is already present)
 
     To review WinRM config:
@@ -144,14 +144,44 @@ index = security
     ```
 
 ### Back in Phantom:
-  1. Go to Apps
+- Setting up Win RM
+  1. Go to Apps from the main menu
   2. Search for "Windows" and find the Windows Remote Management app under unconfigured Apps
-  3. Point to your Win Server hostname for test connectivity
+  3. Click "Configure New Asset" on the right hand side and give the asset a name while in the "Asset Info" tab
+  4. Under "Asset Settings", point to your Win Server hostname for test connectivity
   4. Use HTTPS as default protocol and change port to 5986
   5. Use NTLM transport and input your admin user and password
   6. Save and "Test connectivity" to validate
+- Setting up Splunk connectivity from Phantom
+  1. From main menu, go to Apps
+  2. Search for "Splunk" and click on "unconfigured apps" to find it
+  3. Click "Configure new asset" on the right hand side
+  4. Give it a name with no spaces under "asset info" then click "asset settings" tab
+  5. Put in the IP/Hostname, username and password for your Splunk instance
+  6. Change the timezone to UTC (unless you have this set differently in Splunk)
+  7. Go to the Ingest Settings tab and select (or define) a label to assign to the inbound Splunk events
+  8. Click "Save" go back to the "Asset Settings" tab and then click "Test Connectivity" at the bottom to validate that it is working
+- Setting up Atomic Red Team app
+  1. Download https://github.com/timfrazier1/AdversarySimulation/blob/master/phatomicredteam.tgz
+  2. Go to Apps from the main menu
+  3. Click the "Install App" button in the upper right
+  4. Select the downloaded "phatomicredteam.tgz" file
+  5. Once app is installed, find "Atomic Red Team" in unconfigured Apps
+  6. Click "Configure new Asset" on the right hand side
+  7. Paste in https://github.com/redcanaryco/atomic-red-team if you want to use the main ART repo, otherwise, use your own fork
+  8. Hit "Save" and then "Test Connectivity" to build the list of tests
+  9. You should see a "Repo Created Successfully" message
+- Setting up the Playbook
+  1. From the main menu, go to Administration -> Administration Settings -> Source Control
+  2. Select "configure new repository", then paste https://github.com/daveherrald/AdvSim into the URL field
+  3. Use "AdvSim" as the name and "master" as the branch
+  4. Check the "read-only" box and click "Save"
+  5. From the main menu, go to "Playbooks"
+  6. On the listing screen, click the "Repo" column and select "AdvSim" to see the playbooks associated with the repo
+  7. Click on "Modular Simulation" to view the playbook in the editor
 
-  
+
+
 
 
 
