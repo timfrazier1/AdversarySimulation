@@ -37,12 +37,13 @@ curl -ku 'username:password' https://splunk:8089/servicesNS/nobody/phantom/confi
  - CAVEAT EMPTOR: Disabling certificate checking is not allowed in Splunk Cloud and does make the setup less secure.
 9. Need to download and install Sysmon-TA from Splunkbase: https://splunkbase.splunk.com/app/1914/
 10. Create the "security" index if using the inputs.conf below
+11. Will need to make sure the lookup for attck_assets is correct, either using "Lookup Editor" Splunk app or manually editing.
 
 
 ### Setting up Phantom:
 1. Launch Splunk Phantom AMI on AWS (or on-prem)
 2. Login with admin/password  (You should change your password)
-3. Go to Administration --> User Management
+3. Go to Administration --> User Management --> Users
 4. Click on "automation" User
 5. Change "Allowed IPs" to "any" (or appropriate subnet, if you prefer to be more secure)
 6. Copy everything in the "Authorization Configuration for REST API" section
@@ -222,3 +223,60 @@ index = security
     ```
     sysmon.exe -accepteula -i sysmonconfig-export.xml
     ```
+
+
+## Option 2: Spin up Detetion Lab
+  1. Follow instructions here to spin up DetectionLab: https://github.com/clong/DetectionLab
+  2. From the console for "logger" vm (or via ssh):
+  ```
+  su splunk
+  cd /opt/splunk/etc/apps
+  git clone https://github.com/daveherrald/SA-attck_nav.git
+  git clone https://github.com/daveherrald/SA-advsim.git
+  ```
+  3. From the UI, Navigate to "Administrator" --> "Account Settings"
+  4. Change Administrator password to a new value
+  5. From the UI, navigate to "Apps" --> "Find More Apps"
+    - Search for "Phantom" and install "Phantom App for Splunk"
+    - Search for "lookup" and install "Lookup File Editor"
+    - Search for "CIM" and install "Splunk Common Information Model (CIM)"
+    - Then restart Splunk
+  7. From the UI, navigate to "Settings" --> "Access Controls"
+  8. Click "Roles", then "admin"
+  9. Under the "inheritance" section, add the "phantom" role.  
+  10. Scroll down and click "save" at the bottom.
+  11. Unless you have a valid certificate for Phantom, you will need to disable certificate validation by running:
+  ```
+  curl -ku 'username:password' https://<splunk-address>:8089/servicesNS/nobody/phantom/configs/conf-phantom/verify_certs\?output_mode\=json -d value=0
+  ```
+   - with the appropriate substitutions, of course
+   - CAVEAT EMPTOR: Disabling certificate checking is not allowed in Splunk Cloud and does make the setup less secure.
+
+  10. Create the "security" index if using the inputs.conf below
+  11. Will need to make sure the lookup for attck_assets is correct, either using "Lookup Editor" Splunk app or manually editing.
+    - Go to Apps --> Lookup Editor
+    - Under the "Lookups" title and to the right, click on the filter labeled "App: All" and select "Adversary Simulator"
+    - Click the only lookup there, "attck_assets.csv"
+    - Adjust these lines to match your environment
+
+  14. Modify the file `/opt/splunk/etc/apps/phantom/bin/ta_addonphantom/modalert_phantom_forward_helper.py`
+    - Comment out the "return results" line and uncomment the "return 0" line
+
+### Setting up Phantom:
+  1. Launch Splunk Phantom AMI on AWS (or on-prem)
+  2. Login with admin/password  (You should change your password)
+  3. Go to Administration --> User Management --> Users
+  4. Click on "automation" User
+  5. Change "Allowed IPs" to "any" (or appropriate subnet, if you prefer to be more secure)
+  6. Copy everything in the "Authorization Configuration for REST API" section
+  7. Click "Save"
+
+  Go back to Splunk:
+  1. Navigate to Apps --> Phantom --> Phantom Server Configuration
+  2. Click "Create Server"
+  3. Paste clipboard into "Authorization Configuration"
+  4. Give it a name (such as Phantom AWS)
+  5. Click "Save"
+   - If something is wrong, you will get an error here
+
+  ### At this point, you have the basic Splunk/Phantom setup
