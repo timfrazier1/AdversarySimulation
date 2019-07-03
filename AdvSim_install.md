@@ -73,6 +73,14 @@ cp privkey.pem /opt/phantom/etc/ssl/private/httpd_cert.key
 service nginx reload
 ```
 
+FYI: to renew certificate at a later date, simply run:
+```
+certbot renew
+cp <path_to_new_cert>/fullchain.pem /opt/phantom/etc/ssl/certs/httpd_cert.crt
+cp <path_to_new_cert>/privkey.pem /opt/phantom/etc/ssl/private/httpd_cert.key
+service nginx reload
+```
+
 We will next need to get the Phantom app on Splunk set up
 
 
@@ -158,49 +166,6 @@ index = security
     winrm get winrm/config -format:pretty
     ```
 
-### Back in Phantom:
-- Setting up Win RM
-  1. Go to Apps from the main menu
-  2. Search for "Windows" and find the Windows Remote Management app under unconfigured Apps
-  3. Click "Configure New Asset" on the right hand side and give the asset a name while in the "Asset Info" tab
-  4. Under "Asset Settings", point to your Win Server hostname for test connectivity
-  4. Use HTTPS as default protocol and change port to 5986
-  5. Use NTLM transport and input your admin user and password
-  6. Save and "Test connectivity" to validate
-- Setting up Splunk connectivity from Phantom
-  1. From main menu, go to Apps
-  2. Search for "Splunk" and click on "unconfigured apps" to find it
-  3. Click "Configure new asset" on the right hand side
-  4. Give it a name with no spaces under "asset info" then click "asset settings" tab
-  5. Put in the IP/Hostname, username and password for your Splunk instance
-  6. Change the timezone to UTC (unless you have this set differently in Splunk)
-  7. Go to the Ingest Settings tab and select (or define) a label to assign to the inbound Splunk events
-  8. Click "Save" go back to the "Asset Settings" tab and then click "Test Connectivity" at the bottom to validate that it is working
-- Setting up Atomic Red Team app
-  1. Download https://github.com/timfrazier1/AdversarySimulation/blob/master/phatomicredteam.tgz
-  2. Go to Apps from the main menu
-  3. Click the "Install App" button in the upper right
-  4. Select the downloaded "phatomicredteam.tgz" file
-  5. Once app is installed, find "Atomic Red Team" in unconfigured Apps
-  6. Click "Configure new Asset" on the right hand side
-  7. Paste in https://github.com/redcanaryco/atomic-red-team if you want to use the main ART repo, otherwise, use your own fork
-  8. Hit "Save" and then "Test Connectivity" to build the list of tests
-  9. You should see a "Repo Created Successfully" message
-- Setting up the Playbook
-  1. From the main menu, go to Administration -> Administration Settings -> Source Control
-  2. Select "configure new repository", then paste https://github.com/daveherrald/AdvSim into the URL field
-  3. Use "AdvSim" as the name and "master" as the branch
-  4. Check the "read-only" box and click "Save"
-  5. From the main menu, go to "Playbooks"
-  6. On the listing screen, click the "Repo" column and select "AdvSim" to see the playbooks associated with the repo
-  7. Click on "Modular Simulation" to view the playbook in the editor
-
-
-
-
-
-
-
 ### For Windows 10:
   1. Stand up AWS Workspaces windows 10 box
   2. Download and install Splunk Universal Forwarder:
@@ -240,6 +205,7 @@ index = security
     - Search for "Phantom" and install "Phantom App for Splunk"
     - Search for "lookup" and install "Lookup File Editor"
     - Search for "CIM" and install "Splunk Common Information Model (CIM)"
+    - Install Base64 app from Splunkbase: https://splunkbase.splunk.com/app/1922/
     - Then restart Splunk
   7. From the UI, navigate to "Settings" --> "Access Controls"
   8. Click "Roles", then "admin"
@@ -254,6 +220,7 @@ index = security
 
   10. Create the "security" index if using the inputs.conf below
   11. Will need to make sure the lookup for attck_assets is correct, either using "Lookup Editor" Splunk app or manually editing.
+
     - Go to Apps --> Lookup Editor
     - Under the "Lookups" title and to the right, click on the filter labeled "App: All" and select "Adversary Simulator"
     - Click the only lookup there, "attck_assets.csv"
@@ -279,4 +246,49 @@ index = security
   5. Click "Save"
    - If something is wrong, you will get an error here
 
-  ### At this point, you have the basic Splunk/Phantom setup
+### At this point, you have the basic Splunk/Phantom setup
+
+### Back in Phantom:
+  (Assumption is that the Phantom VM has internet connectivity to download Atomic Red Team)
+- Setting up Win RM
+  1. Go to Apps from the main menu
+  2. Search for "Windows" and find the Windows Remote Management app under unconfigured Apps
+  3. Click "Configure New Asset" on the right hand side and give the asset a name while in the "Asset Info" tab
+  4. Under "Asset Settings", point to your Win Server hostname for test connectivity
+  5. For AWS Windows box following above Windows Setup:
+    - Use HTTPS as default protocol and change port to 5986
+    - Leave domain blank
+    - Use NTLM transport and input your admin user and password
+  6. For DetectionLab Windows box:
+    - Use the Win10 box IP address for testing
+    - Use HTTP as default protocol and leave port as 5985
+    - Use WIN10 as the domain
+    - Use NTLM transport and input "vagrant" user and "vagrant" password
+  7. Save and "Test connectivity" to validate
+- Setting up Splunk connectivity from Phantom
+  1. From main menu, go to Apps
+  2. Search for "Splunk" and click on "unconfigured apps" to find it
+  3. Click "Configure new asset" on the right hand side
+  4. Give it a name with no spaces under "asset info" then click "asset settings" tab
+  5. Put in the IP/Hostname, username and password for your Splunk instance
+  6. Change the timezone to UTC (unless you have this set differently in Splunk)
+  7. Go to the Ingest Settings tab and select (or define) a label to assign to the inbound Splunk events
+  8. Click "Save" go back to the "Asset Settings" tab and then click "Test Connectivity" at the bottom to validate that it is working
+- Setting up Atomic Red Team app
+  1. Download https://github.com/timfrazier1/AdversarySimulation/blob/master/phatomicredteam.tgz
+  2. Go to Apps from the main menu
+  3. Click the "Install App" button in the upper right
+  4. Select the downloaded "phatomicredteam.tgz" file
+  5. Once app is installed, find "Atomic Red Team" in unconfigured Apps
+  6. Click "Configure new Asset" on the right hand side
+  7. Paste in https://github.com/redcanaryco/atomic-red-team.git if you want to use the main ART repo, otherwise, use your own fork
+  8. Hit "Save" and then "Test Connectivity" to build the list of tests
+  9. You should see a "Repo Created Successfully" message
+- Setting up the Playbook
+  1. From the main menu, go to Administration -> Administration Settings -> Source Control
+  2. Select "configure new repository", then paste https://github.com/daveherrald/AdvSim into the URL field
+  3. Use "AdvSim" as the name and "master" as the branch
+  4. Check the "read-only" box and click "Save"
+  5. From the main menu, go to "Playbooks"
+  6. On the listing screen, click the "Repo" column and select "AdvSim" to see the playbooks associated with the repo
+  7. Click on "Modular Simulation" to view the playbook in the editor
