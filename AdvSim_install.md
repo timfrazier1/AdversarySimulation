@@ -1,10 +1,12 @@
 
 # AdvSim Install Guide
-This guide is intended to provide a prescriptive path to getting a minimal adversary simulation setup using Splunk and Phantom (free/community editions).  There is obviously much left to the reader once the setup is complete in terms of what techniques to test
+This guide is intended to provide a prescriptive path to getting a minimal adversary simulation setup using Splunk and Phantom (free/community editions).  There is obviously much left to the reader once the setup is complete in terms of what techniques to test.
 
-### Setting up Splunk:
+Follow either Option A to use AWS AMIs or Option B to use Detection Lab locally for getting the basic components in place.  Then skip down to "Further Phantom Setup"
 
-1. Launch Splunk Enterprise AMI on AWS (or on-prem version) (tested with version 7.3)
+## Step 1: Option A: Setting up Splunk:
+
+1. Launch Splunk Enterprise AMI on AWS (or on-prem version) (tested with version 7.2.5)
 2. Commands from Splunk instance CLI
 ```
 sudo su
@@ -66,33 +68,12 @@ Go back to Splunk:
 6. You can also click the "Manage" menu under "Actions" on the right hand side and select "Test Connectivity" to explicitly verify that everything is working
 7. After successful testing, click "Manage" again and "Set Default", as well as "Sync Playbooks"
 
-### At this point, you have the basic Splunk/Phantom setup
-
-### Optional: Phantom SSH to set up certificate if you want valid certificates
-1. Run the following as root:
-```
-yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum install -y certbot python2-certbot-nginx python2-certbot-dns-google
-certbot --nginx certonly
-#Feed in your domain name and then cd to the new directory with the certs once Created
-cp /opt/phantom/etc/ssl/certs/httpd_cert.crt /opt/phantom/etc/ssl/certs/httpd_cert.crt.bak
-cp fullchain.pem /opt/phantom/etc/ssl/certs/httpd_cert.crt
-cp /opt/phantom/etc/ssl/private/httpd_cert.key /opt/phantom/etc/ssl/private/httpd_cert.key.bak
-cp privkey.pem /opt/phantom/etc/ssl/private/httpd_cert.key
-service nginx reload
-```
-
-FYI: to renew certificate at a later date, simply run:
-```
-certbot renew
-cp <path_to_new_cert>/fullchain.pem /opt/phantom/etc/ssl/certs/httpd_cert.crt
-cp <path_to_new_cert>/privkey.pem /opt/phantom/etc/ssl/private/httpd_cert.key
-service nginx reload
-```
+#### Basic Splunk/Phantom setup should be complete
+  - Follow the Windows setup guides as needed  
+  - Skip "Option 2: Detection Lab" and go straight to "Further Phantom Setup"
 
 
-
-### For Windows Server 2019:
+#### For Windows Server 2019:
   1. Stand up AWS AMI for Windows Server 2019 Base
   2. Download and modify swiftonsecurity sysmon-config:
     - Key exclusions of splunk processes under process creation:
@@ -158,6 +139,7 @@ index = security
   8. Turn on WinRM service:
     - Using these instructions: https://www.visualstudiogeeks.com/devops/how-to-configure-winrm-for-https-manually
     - In powershell:
+
     ```
     winrm quickconfig
     New-SelfSignedCertificate -DnsName "<YOUR_DNS_NAME>" -CertStoreLocation Cert:\LocalMachine\My
@@ -166,6 +148,7 @@ index = security
     port=5986
     netsh advfirewall firewall add rule name="Windows Remote Management (HTTPS-In)" dir=in action=allow protocol=TCP localport=$port
     ```
+
     - Open port 5986 inbound on AWS for Server (sometimes this is already present)
 
     To review WinRM config:
@@ -173,7 +156,7 @@ index = security
     winrm get winrm/config -format:pretty
     ```
 
-### For Windows 10:
+#### For Windows 10:
   1. Stand up AWS Workspaces windows 10 box
   2. Download and install Splunk Universal Forwarder:
     https://www.splunk.com/en_us/download/universal-forwarder.html
@@ -196,8 +179,9 @@ index = security
     sysmon.exe -accepteula -i sysmonconfig-export.xml
     ```
 
+### End of Step 1: Option A.  At this point, you have the basic Splunk/Phantom/Windows set up in AWS
 
-## Option 2: Spin up Detetion Lab
+## Step 1: Option B: Spin up Detection Lab (skip down to "Step 2: Further Phantom Setup" if not using DetectionLab)
   1. Follow instructions here to spin up DetectionLab: https://github.com/clong/DetectionLab
   2. From the console for "logger" vm (or via ssh):
   ```
@@ -253,10 +237,11 @@ index = security
   5. Click "Save"
    - If something is wrong, you will get an error here
 
-### At this point, you have the basic Splunk/Phantom setup
+### End of Step 1: Option B. At this point, you have the basic Splunk/Phantom setup with DetectionLab
 
-### Back in Phantom:
-  (Assumption is that the Phantom VM has internet connectivity to download Atomic Red Team)
+
+## Step 2: Further Phantom Setup with Apps & Playbooks:
+  Back in Phantom: (Assumption is that the Phantom VM has internet connectivity to download Atomic Red Team)
 - Setting up Win RM
   1. Go to Apps from the main menu
   2. Search for "Windows" and find the Windows Remote Management app under unconfigured Apps
@@ -288,9 +273,10 @@ index = security
   4. Select the downloaded "phatomicredteam.tgz" file
   5. Once app is installed, find "Atomic Red Team" in unconfigured Apps
   6. Click "Configure new Asset" on the right hand side
-  7. Paste in https://github.com/redcanaryco/atomic-red-team.git if you want to use the main ART repo, otherwise, use your own fork
-  8. Hit "Save" and then "Test Connectivity" to build the list of tests
-  9. You should see a "Repo Created Successfully" message
+  7. Give your asset a name with no spaces under "asset info" then click "asset settings" tab
+  8. Leave the default URL as https://github.com/redcanaryco/atomic-red-team.git if you want to use the main ART repo, otherwise, use your own fork
+  9. Hit "Save" and then "Test Connectivity" to build the list of tests
+  10. You should see a "Repo Created Successfully" message
 - Setting up the Playbook
   1. From the main menu, go to Administration -> Administration Settings -> Source Control
   2. Select "configure new repository", then paste https://github.com/timfrazier1/AdvSimPlaybooks into the URL field
@@ -302,7 +288,9 @@ index = security
   8. If you want, you can click on "Modular Simulation" to view the playbook in the editor
 
 
-### At this point, you should be setup
+### At this point, you should be all setup
+
+## Step 3: Workflow Example
 
   1. Go back to your Splunk Web interface
   2. Select "Attack Board" from the app navigator
@@ -316,4 +304,33 @@ index = security
   7. Assuming you get exit code=0, you should see at least one event in the next panel, "Phantom POST-ed events matching GUID".  
    - If you don't have any events, Phantom is not POSTing to SPLUNK
    - If you only have one event, hover over this panel and then click the circle arrow in the bottom right to refresh this panel.  You will need to do this until you see two events in the panel to get your time bracket.  The test should only take about 10-20 seconds to complete.  
-   - If you have refreshed after 30 seconds and you still don't have two events in the panel, you will need to switch over to Phantom to figure out why the test did not complete successfully. 
+   - If you have refreshed after 30 seconds and you still don't have two events in the panel, you will need to switch over to Phantom to figure out why the test did not complete successfully.
+
+### TODO: Provide a video of executing a test
+
+[![Watch the video](Insert_link_to_jpg_of_opening_video_frame)](Insert_link_to_video)
+
+
+
+
+### Optional: Phantom SSH to set up certificate if you want valid certificates
+   1. Run the following as root:
+   ```
+   yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   yum install -y certbot python2-certbot-nginx python2-certbot-dns-google
+   certbot --nginx certonly
+   #Feed in your domain name and then cd to the new directory with the certs once Created
+   cp /opt/phantom/etc/ssl/certs/httpd_cert.crt /opt/phantom/etc/ssl/certs/httpd_cert.crt.bak
+   cp fullchain.pem /opt/phantom/etc/ssl/certs/httpd_cert.crt
+   cp /opt/phantom/etc/ssl/private/httpd_cert.key /opt/phantom/etc/ssl/private/httpd_cert.key.bak
+   cp privkey.pem /opt/phantom/etc/ssl/private/httpd_cert.key
+   service nginx reload
+   ```
+
+   FYI: to renew certificate at a later date, simply run:
+   ```
+   certbot renew
+   cp <path_to_new_cert>/fullchain.pem /opt/phantom/etc/ssl/certs/httpd_cert.crt
+   cp <path_to_new_cert>/privkey.pem /opt/phantom/etc/ssl/private/httpd_cert.key
+   service nginx reload
+   ```
