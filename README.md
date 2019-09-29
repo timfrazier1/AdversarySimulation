@@ -16,7 +16,6 @@ cd ~
 git clone https://github.com/timfrazier1/AdversarySimulation.git
 cd /opt/splunk/etc/apps
 git clone https://github.com/daveherrald/SA-attck_nav.git
-git clone https://github.com/daveherrald/SA-advsim.git
 tar -xzf ~/AdversarySimulation/resources/splunk_apps/phantom-app-for-splunk_275.tgz
 tar -xzf ~/AdversarySimulation/resources/splunk_apps/phantom-remote-search_109.tgz
 tar -xzf ~/AdversarySimulation/resources/splunk_apps/splunk-app-for-phantom-reporting_100.tgz
@@ -203,7 +202,6 @@ index = security
   su splunk
   cd /opt/splunk/etc/apps
   git clone https://github.com/daveherrald/SA-attck_nav.git
-  git clone https://github.com/daveherrald/SA-advsim.git
   ```
   3. From the UI, Navigate to "Administrator" --> "Account Settings"
   4. Change Administrator password to a new value
