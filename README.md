@@ -5,7 +5,7 @@ This project provides a set of tooling for repeatedly executing and detecting ad
 Here is a short video demonstrating how it works and what it looks like once set up:
 [![ATT&CK Sim Demo](http://img.youtube.com/vi/jAMz18dTeMc/0.jpg)](https://www.youtube.com/watch?v=jAMz18dTeMc "ATT&CK Sim Demo")
 
-[ATT&CK Sim Demo](https://vimeo.com/user103980642/review/366337885/f41e13c966)
+[![ATT&CK Sim Demo](https://player.vimeo.com/video/366337885)](https://vimeo.com/366337885)
 
 
 # ATT&CK Sim Install Guide
