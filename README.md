@@ -1,10 +1,30 @@
 
-# AdvSim Install Guide
+# ATT&CK Simulator
+This project provides a set of tooling for repeatedly executing and detecting adversary techniques.  This project uses the MITRE ATT&CK Enterprise techniques taxonomy (https://attack.mitre.org/techniques/enterprise/) and the MITRE ATT&CK navigator web app (https://github.com/mitre-attack/attack-navigator).  This project also makes extensive use of the Atomic Red Team project from Red Canary: (https://github.com/redcanaryco/atomic-red-team), Olaf Hartong's ThreatHunting App for Splunk: (https://github.com/olafhartong/ThreatHunting), Splunk Security Essentials App: (https://splunkbase.splunk.com/app/3435/) and my personal fork of Chris Long's DetectionLab project that includes Phantom in the Terraform scripts for easy spin up: (My Fork: https://github.com/timfrazier1/DetectionLab Original Project: https://github.com/clong/DetectionLab). Once set up, you will be able to repeatedly execute specific techniques, observe the resulting events in Splunk and refine your detection rules and methodology.  
+
+Here is a short video demonstrating how it works and what it looks like once set up:
+[![ATT&CK Sim Demo](http://img.youtube.com/vi/jAMz18dTeMc/0.jpg)](https://www.youtube.com/watch?v=jAMz18dTeMc "ATT&CK Sim Demo")
+
+[ATT&CK Sim Demo](https://vimeo.com/user103980642/review/366337885/f41e13c966)
+
+
+# ATT&CK Sim Install Guide
 This guide is intended to provide a prescriptive path to getting a minimal adversary simulation setup using Splunk and Phantom (free/community editions).  There is obviously much left to the reader once the setup is complete in terms of what techniques to test.
 
-Follow either Option A to use AWS AMIs or Option B to use Detection Lab locally for getting the basic components in place.  Then skip down to "Further Phantom Setup"
+Follow either Option A to use a new fork of Detection Lab with Terraform in AWS (Easiest option), Option B to build your own AWS AMIs or Option C to use Detection Lab locally for getting the basic components in place.  Then skip down to "Further Phantom Setup"
 
-## Step 1: Option A: Setting up Splunk:
+## Step 1: Option A: Using DetectionLab in AWS with Terraform:
+This method is still in "beta", but when working, is the easiest method to get all components needed for ATT&CK Sim up and running.
+
+1. Clone the DetectionLab fork here: https://github.com/timfrazier1/DetectionLab
+2. Go here and subscribe to the Splunk Phantom AMI in your AWS account in order to accept the EULA: https://aws.amazon.com/marketplace/pp/Splunk-Inc-Splunk-Phantom/B07K2HPNJG
+3. Follow the instructions here to set up your Terraform profile and variables: https://github.com/timfrazier1/DetectionLab/blob/master/Terraform/Pre-Built_AMIs.md
+4. After running "terraform apply" and typing "yes", the build process should begin.  
+ - Please note that this fork of DetectionLab only installs Splunk Universal Forwarder does not have some components enabled (such as OSquery and Bro) for speed of install reasons.  This can be easily changed by uncommenting lines 446-450 in the file https://github.com/timfrazier1/DetectionLab/blob/master/Vagrant/bootstrap.sh
+5. Look for the green output text when the build completes (~20-30 minutes) and you should have your URLs to access Splunk and Phantom.  
+
+
+## Step 1: Option B: Setting up Splunk:
 
 1. Launch Splunk Enterprise AMI on AWS (or on-prem version) (tested with version 7.2.5)
 2. Commands from Splunk instance CLI
@@ -23,6 +43,8 @@ tar -xzf ~/AdversarySimulation/resources/splunk_apps/base64_11.tgz
 tar -xzf ~/AdversarySimulation/resources/splunk_apps/add-on-for-microsoft-sysmon_810.tgz
 tar -xzf ~/AdversarySimulation/resources/splunk_apps/lookup-file-editor_332.tgz
 tar -xzf ~/AdversarySimulation/resources/splunk_apps/splunk-common-information-model-cim_4130.tgz
+tar -xzf ~/AdversarySimulation/resources/splunk_apps/splunk-security-essentials_252.tgz
+tar -xzf ~/AdversarySimulation/resources/splunk_apps/threathunting_141.tgz
 /opt/splunk/bin/splunk restart
 ```
 
@@ -30,19 +52,19 @@ tar -xzf ~/AdversarySimulation/resources/splunk_apps/splunk-common-information-m
 4. Click "Roles", then "admin"
 5. Under the "inheritance" section, add the "phantom" role.  
 6. Scroll down and click "save" at the bottom.
-7. TODO: Need to give permissions to SA-Attck_nav to all apps, then run | makeresults 1 | genatklayer reset=1 in search
-7. Unless you have a valid certificate for Phantom, you will need to disable certificate validation by running:
+7. Go to the "Overview" tab of the ATT&CKsim app and Reset the layer by checking the "Reset" radio button and clicking Submit
+8. Unless you have a valid certificate for Phantom, you will need to disable certificate validation by running:
 ```
 curl -ku 'username:password' https://splunk_server:8089/servicesNS/nobody/phantom/configs/conf-phantom/verify_certs\?output_mode\=json -d value=0
 ```
  - with the appropriate substitutions, of course
  - CAVEAT EMPTOR: Disabling certificate checking is not allowed in Splunk Cloud and does make the setup less secure. See optional section below for help on creating a certificate if you need it.
 
-8. Create the "security" index if using the inputs.conf below
+9. Create the "security" index if using the inputs.conf below
   - Go to the "Settings" menu, then "Data" --> "Indexes"
   - Click the "New Index" button in the top right
   - Give it the name "security", leave the rest default and click "Save" at the bottom
-9. You will need to make sure the lookup for attck_assets is correct, either using "Lookup Editor" Splunk app or manually editing.
+10. You will need to make sure the lookup for attck_assets is correct, either using "Lookup Editor" Splunk app or manually editing.
  - Go to App context menu in upper left and go to "Lookup Editor" app
  - Look for the "attck_assets.csv" file and click on it
  - change the hostname, os and ip_address to match your test box(es)
@@ -174,8 +196,8 @@ index = security
     - ~~point to Splunk AWS Box IP as deployment Server (enter default port)~~
     - point to Splunk AWS Box IP as indexer (enter default port)
     -
-  4. Download and modify swiftonsecurity sysmon-config:
-    - Key exclusions of splunk processes:
+  4. Download and modify Olaf Hartong's sysmon-config.  I like this one here: https://github.com/olafhartong/sysmon-configs/blob/master/sysmonconfig-v10.xml
+    - You may want to add more exclusions for splunk processes such as:
       - ```
       	 <ProcessCreate onmatch="exclude">
       <Image condition="is">C:\Program Files\Splunk\bin\btool.exe</Image> <!--Splunk Processes-->
@@ -184,13 +206,11 @@ index = security
 		<Image condition="is">C:\Program Files\SplunkUniversalForwarder\bin\splunk-powershell.exe</Image> <!--Splunk Processes-->
 		<ParentImage condition="is">C:\Program Files\SplunkUniversalForwarder\bin\splunkd.exe</ParentImage> <!--Splunk Processes-->
         ```
-    - Key inclusion for Mimikatz:
-      - ```<TargetImage condition="is">C:\windows\system32\lsass.exe</TargetImage>```
 
   5. Download and install sysmon:
     https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon
     ```
-    sysmon.exe -accepteula -i sysmonconfig-export.xml
+    sysmon.exe -accepteula -i sysmonconfig-v10.xml
     ```
 
 ### End of Step 1: Option A.  At this point, you have the basic Splunk/Phantom/Windows set up in AWS
@@ -319,12 +339,9 @@ index = security
   7. Assuming you get exit code=0, you should see at least one event in the next panel, "Phantom POST-ed events matching GUID".  
    - If you don't have any events, Phantom is not POSTing to SPLUNK
    - If you only have one event, hover over this panel and then click the circle arrow in the bottom right to refresh this panel.  You will need to do this until you see two events in the panel to get your time bracket.  The test should only take about 10-20 seconds to complete.  
-   - If you have refreshed after 30 seconds and you still don't have two events in the panel, you will need to switch over to Phantom to figure out why the test did not complete successfully.
+   - If you have refreshed after 30-60 seconds and you still don't have at least two events in the panel, you will need to switch over to Phantom to figure out why the test did not complete successfully.
 
-### TODO: Provide a video of executing a test
-
-[![Watch the video](Insert_link_to_jpg_of_opening_video_frame)](Insert_link_to_video)
-
+[![ATT&CK Sim Demo](http://img.youtube.com/vi/jAMz18dTeMc/0.jpg)](https://www.youtube.com/watch?v=jAMz18dTeMc)
 
 
 
