@@ -3,9 +3,8 @@
 This project provides a set of tooling for repeatedly executing and detecting adversary techniques.  This project uses the MITRE ATT&CK Enterprise techniques taxonomy (https://attack.mitre.org/techniques/enterprise/) and the MITRE ATT&CK navigator web app (https://github.com/mitre-attack/attack-navigator).  This project also makes extensive use of the Atomic Red Team project from Red Canary: (https://github.com/redcanaryco/atomic-red-team), Olaf Hartong's ThreatHunting App for Splunk: (https://github.com/olafhartong/ThreatHunting), Splunk Security Essentials App: (https://splunkbase.splunk.com/app/3435/) and my personal fork of Chris Long's DetectionLab project that includes Phantom in the Terraform scripts for easy spin up: (My Fork: https://github.com/timfrazier1/DetectionLab Original Project: https://github.com/clong/DetectionLab). Once set up, you will be able to repeatedly execute specific techniques, observe the resulting events in Splunk and refine your detection rules and methodology.  
 
 Here is a short video demonstrating how it works and what it looks like once set up:
-[![ATT&CK Sim Demo](http://img.youtube.com/vi/jAMz18dTeMc/0.jpg)](https://www.youtube.com/watch?v=jAMz18dTeMc "ATT&CK Sim Demo")
 
-[![ATT&CK Sim Demo](https://player.vimeo.com/video/366337885)](https://vimeo.com/366337885)
+[![ATT&CK Sim Demo](https://i.vimeocdn.com/video/822348002.webp)](https://vimeo.com/366337885)
 
 
 # ATT&CK Sim Install Guide
@@ -340,6 +339,10 @@ index = security
    - If you don't have any events, Phantom is not POSTing to SPLUNK
    - If you only have one event, hover over this panel and then click the circle arrow in the bottom right to refresh this panel.  You will need to do this until you see two events in the panel to get your time bracket.  The test should only take about 10-20 seconds to complete.  
    - If you have refreshed after 30-60 seconds and you still don't have at least two events in the panel, you will need to switch over to Phantom to figure out why the test did not complete successfully.
+
+Here is a short video demonstrating how it works and what it looks like once set up:
+[![ATT&CK Sim Demo](https://i.vimeocdn.com/video/822348002.webp)](https://vimeo.com/366337885)
+
 
 [![ATT&CK Sim Demo](http://img.youtube.com/vi/jAMz18dTeMc/0.jpg)](https://www.youtube.com/watch?v=jAMz18dTeMc)
 
