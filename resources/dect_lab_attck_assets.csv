@@ -2,6 +2,7 @@ hostname,os,ip_address
 dc,windows,192.168.38.102
 win10,windows,192.168.38.104
 wef,windows,192.168.38.103
+logger,linux,192.168.38.105
 winhost01,windows,172.31.76.156
 machost01,osx,192.168.1.55
 linuxhost01,linux,192.168.1.56
