@@ -29,7 +29,7 @@ try:
 except Exception as e:
     print "Session set up failed: " + str(e)
 try:
-    s.post('https://localhost/rest/asset', json={"configuration": {"verify_cert": true,
+    s.post('https://localhost/rest/asset', json={"configuration": {"verify_cert": True,
     "base_url": "https://github.com/redcanaryco/atomic-red-team.git"},
     "name": "art_main_repo", "product_name": "Atomic Red Team",
     "product_vendor": "Red Canary"})
@@ -56,8 +56,8 @@ except Exception as e:
 print "\nSleeping for two minutes... \n"
 time.sleep(120)
 try:
-    s.post('https://localhost/rest/asset', json={"name": "winrm_dect_lab", "product_name": "Windows Remote Management", "product_vendor": "Microsoft", "configuration": {"username": "vagrant", "domain": "", "endpoint": "192.168.38.104", "verify_server_cert": false, "default_port": "5985", "default_protocol": "http", "password": "vagrant", "transport": "ntlm"}})
-    s.post('https://localhost/rest/asset', json={"name": "splunk_dect_lab", "product_vendor": "Splunk Inc.", "product_name": "Splunk Enterprise", "configuration": {"username": "admin", "max_container": 100, "ingest": {"container_label": "splunk_events", "start_time_epoch_utc": null}, "retry_count": "3", "verify_server_cert": false, "device": "192.168.38.105", "timezone": "UTC", "password": "changeme", "port": "8089"}})
+    s.post('https://localhost/rest/asset', json={"name": "winrm_dect_lab", "product_name": "Windows Remote Management", "product_vendor": "Microsoft", "configuration": {"username": "vagrant", "domain": "", "endpoint": "192.168.38.104", "verify_server_cert": False, "default_port": "5985", "default_protocol": "http", "password": "vagrant", "transport": "ntlm"}})
+    s.post('https://localhost/rest/asset', json={"name": "splunk_dect_lab", "product_vendor": "Splunk Inc.", "product_name": "Splunk Enterprise", "configuration": {"username": "admin", "max_container": 100, "ingest": {"container_label": "splunk_events", "start_time_epoch_utc": ""}, "retry_count": "3", "verify_server_cert": False, "device": "192.168.38.105", "timezone": "UTC", "password": "changeme", "port": "8089"}})
 except Exception as e:
     print "POST assets failed: " + str(e)
 
@@ -65,7 +65,7 @@ try:
     repo_response = s.get('https://localhost/rest/scm?_filter_name=%22AdvSim%22')
     repo_id = repo_response.json()['data'][0]['id']
 
-    s.post('https://localhost/rest/scm/' + str(repo_id), json= {"pull": true, "force": true})
+    s.post('https://localhost/rest/scm/' + str(repo_id), json= {"pull": True, "force": True})
 except Exception as e:
     print "GET and POST repo info failed: " + str(e)
 
@@ -73,7 +73,7 @@ try:
     playbook_response = s.get('https://localhost/rest/playbook?_filter_name=%22Modular%20Simulation%22')
     playbook_id = playbook_response.json()['data'][0]['id']
 
-    s.post('https://localhost/rest/playbook/' + str(playbook_id), json = {"active": true, "cancel_runs": true})
+    s.post('https://localhost/rest/playbook/' + str(playbook_id), json = {"active": True, "cancel_runs": True})
 except Exception as e:
     print "GET and POST playbook info failed: " + str(e)
 
