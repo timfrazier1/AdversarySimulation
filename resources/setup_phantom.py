@@ -58,6 +58,7 @@ time.sleep(120)
 try:
     s.post('https://localhost/rest/asset', json={"name": "winrm_dect_lab", "product_name": "Windows Remote Management", "product_vendor": "Microsoft", "configuration": {"username": "vagrant", "domain": "", "endpoint": "192.168.38.104", "verify_server_cert": False, "default_port": "5985", "default_protocol": "http", "password": "vagrant", "transport": "ntlm"}})
     s.post('https://localhost/rest/asset', json={"name": "splunk_dect_lab", "product_vendor": "Splunk Inc.", "product_name": "Splunk Enterprise", "configuration": {"username": "admin", "max_container": 100, "ingest": {"container_label": "splunk_events", "start_time_epoch_utc": ""}, "retry_count": "3", "verify_server_cert": False, "device": "192.168.38.105", "timezone": "UTC", "password": "changeme", "port": "8089"}})
+    s.post('https://localhost/rest/asset', json={"name": "dect_lab_logger", "product_vendor": "Generic", "product_name": "SSH", "configuration": {"username": "vagrant", "password": "vagrant", "root": False, "test_device": "192.168.38.105"}})
 except Exception as e:
     print "POST assets failed: " + str(e)
 
