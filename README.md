@@ -17,9 +17,12 @@ There are a few ways to get this up and going.  If you have access to an AWS env
 - [Option C](https://github.com/timfrazier1/AdversarySimulation/wiki/Setup-Option-C): Use Detection Lab locally for getting the basic components in place and configure the rest manually (~a few hours)
 
 
+## Workflow Example
 
+After getting everything setup, here are instructions for a [workflow example.](https://github.com/timfrazier1/AdversarySimulation/wiki/Workflow-Example)
 
-
+<br>
+<br>
 Alternate video link on YouTube:
 
 [![ATT&CK Sim Demo](http://img.youtube.com/vi/jAMz18dTeMc/0.jpg)](https://www.youtube.com/watch?v=jAMz18dTeMc)
