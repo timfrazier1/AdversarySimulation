@@ -5,6 +5,10 @@ import base64
 import requests
 import time
 
+try:
+    session_password = sys.argv[1]
+except:
+    session_password = 'password'
 
 def install_app(full_filepath):
 
@@ -12,7 +16,7 @@ def install_app(full_filepath):
     encoded_contents = base64.b64encode(file_contents)
     payload = {'app': encoded_contents}
     r = requests.post('https://192.168.38.110/rest/app',
-                auth=('admin', 'password'),
+                auth=('admin', session_password),
                 data=json.dumps(payload),
                 verify=False)
     print r.status_code
@@ -25,9 +29,44 @@ install_app('/opt/AdversarySimulation/resources/phantom_apps/phscythe.tgz')
 try:
     s = requests.Session()
     s.verify = False
-    s.auth = ('admin', 'password')
+    s.auth = ('admin', session_password)
 except Exception as e:
     print "Session set up failed: " + str(e)
+
+# Get session cookies
+try:
+    s.get('https://localhost/login')
+except Exception as e:
+    print "Unable to get session cookie: " + str(e)
+
+# Update playbook repository
+try:
+    data = {"uri": "https://github.com/timfrazier1/AdvSimPlaybooks.git", 
+            "name": "AdvSim",
+            "branch": "master",
+            "repo-user": "",
+            "repo-pass": "",
+            "read_only": "on",
+            "save": "true"}
+    repo_resp = s.post('https://localhost/scm/', data)
+    print repo_resp.text
+except Exception as e:
+    print "Unable to create playbook repo: " + str(e)
+
+# Grab token
+try:
+    token_response = s.get('https://localhost/rest/ph_user/2/token')
+    token = token_response.json()['key']
+    print "Token grabbed: " + str(token)
+except Exception as e:
+    print "Unable to get token for automation user: " + str(e)
+
+# Update automation user
+try:
+    s.post('https://localhost/rest/ph_user/2', json={"allowed_ips": ["any"], "default_label": "advsim_test"})
+except Exception as e:
+    print "Unable to update allowed IPs to any: " + str(e)
+
 try:
     s.post('https://localhost/rest/asset', json={"configuration": {"verify_cert": True,
     "base_url": "https://github.com/redcanaryco/atomic-red-team.git"},
