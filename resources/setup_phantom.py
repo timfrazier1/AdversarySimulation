@@ -39,6 +39,7 @@ try:
 except Exception as e:
     print "Unable to get session cookie: " + str(e)
 
+'''
 # Update playbook repository
 try:
     data = {"uri": "https://github.com/timfrazier1/AdvSimPlaybooks.git", 
@@ -52,6 +53,7 @@ try:
     print repo_resp.text
 except Exception as e:
     print "Unable to create playbook repo: " + str(e)
+'''
 
 # Grab token
 try:
