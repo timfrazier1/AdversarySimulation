@@ -131,7 +131,25 @@ try:
         "parameters": [{
             "async": False,
             "script_str": "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force; Install-Module -Name powershell-yaml -Scope CurrentUser -Force",
-            "ip_hostname": "192.168.38.104"}],
+            "ip_hostname": "192.168.38.104"},
+            {
+            "async": False,
+            "script_str": "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force; Install-Module -Name powershell-yaml -Scope CurrentUser -Force",
+            "ip_hostname": "192.168.38.102"}],
+        "app_id": winrm_app_id}]})
+except Exception as e:
+    print "Run Win RM install powershell modules failed: " + str(e)
+try:
+    s.post('https://localhost/rest/action_run', json={"action": "run script", "container_id": 1,
+        "name": "install invoke ART", "targets": [{"assets": ["winrm_dect_lab"],
+        "parameters": [{
+            "async": False,
+            "script_str": "IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing); Install-AtomicRedTeam -getAtomics",
+            "ip_hostname": "192.168.38.104"},
+            {
+            "async": False,
+            "script_str": "IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing); Install-AtomicRedTeam -getAtomics",
+            "ip_hostname": "192.168.38.102"}],
         "app_id": winrm_app_id}]})
 except Exception as e:
     print "Run Win RM install powershell modules failed: " + str(e)
