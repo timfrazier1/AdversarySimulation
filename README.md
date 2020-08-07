@@ -1,5 +1,10 @@
 
 # ATT&CK Simulator
+## Update 8/7/2020: Presented at Black Hat Arsenal USA
+Full Video from BHUSA Arsenal:
+[![BHUSA Arsenal Video](https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F936660553_1280x720.webp)](https://vimeo.com/445636060)
+
+## What is ATT&CK Simulator?
 This project provides a set of tooling for repeatedly executing and detecting adversary techniques.  This project uses the MITRE ATT&CK Enterprise techniques taxonomy (https://attack.mitre.org/techniques/enterprise/) and the MITRE ATT&CK navigator web app (https://github.com/mitre-attack/attack-navigator).  This project also makes extensive use of the Atomic Red Team project from Red Canary: (https://github.com/redcanaryco/atomic-red-team), Olaf Hartong's ThreatHunting App for Splunk: (https://github.com/olafhartong/ThreatHunting), Splunk Security Essentials App: (https://splunkbase.splunk.com/app/3435/) and my personal fork of Chris Long's DetectionLab project that includes Phantom in the Terraform scripts for easy spin up: (My Fork: https://github.com/timfrazier1/DetectionLab Original Project: https://github.com/clong/DetectionLab). Once set up, you will be able to repeatedly execute specific techniques, observe the resulting events in Splunk and refine your detection rules and methodology.  
 
 Here is a short video demonstrating how it works and what it looks like once set up:
